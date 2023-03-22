@@ -11,7 +11,7 @@ pub static LOGGER_HANDLER: tokio::sync::OnceCell<flexi_logger::LoggerHandle> =
 pub fn install_logger() -> anyhow::Result<()> {
     use flexi_logger::{Age, Cleanup, Criterion, FileSpec, Logger, Naming, WriteMode};
 
-    let mut current_exec_path = crate::io::get_current_exec_path()?;
+    let mut current_exec_path = super::io::get_current_exec_path()?;
     current_exec_path.push("logs");
     println!("{:?}", current_exec_path);
 

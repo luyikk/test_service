@@ -16,7 +16,7 @@ impl TryFrom<PathBuf> for Config {
             Ok(serde_json::from_str(&std::fs::read_to_string(config_file)?)
                 .map_err(|er| io::Error::new(ErrorKind::Other, er))?)
         } else {
-            let mut current_exec_path = crate::io::get_current_exec_path()?;
+            let mut current_exec_path = super::io::get_current_exec_path()?;
 
             current_exec_path.push(config_file);
 

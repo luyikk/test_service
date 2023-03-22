@@ -12,11 +12,15 @@ pub fn service() -> anyhow::Result<Option<PathBuf>> {
 
     match OptArgs::parse() {
         OptArgs::Exec { config } => Ok(Some(config)),
-        OptArgs::Create => {
-            let config = include_str!("../config.json");
-            let mut path = crate::io::get_current_exec_path()?;
-            path.push("config.json");
-            std::fs::write(path, config)?;
+        OptArgs::Create { path } => {
+            let config = include_str!("../../config.json");
+            if path.has_root() {
+                std::fs::write(path, config)?;
+            } else {
+                let mut path_t = super::io::get_current_exec_path()?;
+                path_t.push(path);
+                std::fs::write(path_t, config)?;
+            }
             Ok(None)
         }
         OptArgs::Service(ServiceArgs::Install { config }) => {
@@ -88,8 +92,12 @@ enum OptArgs {
         #[arg(value_parser, default_value = "config.json")]
         config: PathBuf,
     },
-    /// create default config.json to current exec path
-    Create,
+    /// create config file; by default, create default config.json to current exec path
+    Create {
+        /// create config file path
+        #[arg(value_parser, default_value = "config.json")]
+        path: PathBuf,
+    },
     /// service manager
     #[command(subcommand)]
     Service(ServiceArgs),

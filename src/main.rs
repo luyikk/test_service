@@ -1,13 +1,10 @@
-mod config;
-mod io;
-mod logger;
-mod service_opt;
 #[cfg(windows)]
-mod windows_service;
+mod service;
 
-use crate::config::Config;
-use crate::service_opt::service;
-use logger::*;
+use service::config::Config;
+use service::logger::*;
+use service::service_opt::service;
+use service::windows_service;
 use std::path::PathBuf;
 use std::time::Duration;
 
@@ -18,6 +15,7 @@ const SERVICE_LIABLE: &str = "com.test.service";
 async fn main() -> anyhow::Result<()> {
     if let Some(config) = service()? {
         install_logger()?;
+        log::info!("start unix run");
         start(config).await?;
     }
     Ok(())
