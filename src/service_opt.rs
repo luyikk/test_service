@@ -12,7 +12,13 @@ pub fn service() -> anyhow::Result<Option<PathBuf>> {
 
     match OptArgs::parse() {
         OptArgs::Exec { config } => Ok(Some(config)),
-        OptArgs::Create => Ok(None),
+        OptArgs::Create => {
+            let config = include_str!("../config.json");
+            let mut path = crate::io::get_current_exec_path()?;
+            path.push("config.json");
+            std::fs::write(path, config)?;
+            Ok(None)
+        }
         OptArgs::Service(ServiceArgs::Install { config }) => {
             let label: ServiceLabel = SERVICE_LIABLE.parse().unwrap();
             let manager = <dyn ServiceManager>::native()?;
@@ -23,7 +29,7 @@ pub fn service() -> anyhow::Result<Option<PathBuf>> {
                     args: vec![OsString::from("exec"), OsString::from(config)],
                 })
                 .expect("Failed to install");
-            println!("install success");
+            println!("service install success");
             Ok(None)
         }
         OptArgs::Service(ServiceArgs::Uninstall) => {
@@ -32,7 +38,7 @@ pub fn service() -> anyhow::Result<Option<PathBuf>> {
             manager
                 .uninstall(ServiceUninstallCtx { label })
                 .expect("Failed to uninstall");
-            println!("uninstall success");
+            println!("service uninstall success");
             Ok(None)
         }
         OptArgs::Service(ServiceArgs::Start) => {
@@ -41,7 +47,7 @@ pub fn service() -> anyhow::Result<Option<PathBuf>> {
             manager
                 .start(ServiceStartCtx { label })
                 .expect("Failed to start");
-            println!("start success");
+            println!("service start success");
             Ok(None)
         }
         OptArgs::Service(ServiceArgs::Stop) => {
@@ -50,7 +56,7 @@ pub fn service() -> anyhow::Result<Option<PathBuf>> {
             manager
                 .stop(ServiceStopCtx { label })
                 .expect("Failed to stop");
-            println!("stop success");
+            println!("service stop success");
             Ok(None)
         }
         OptArgs::Service(ServiceArgs::Restart) => {
@@ -67,7 +73,7 @@ pub fn service() -> anyhow::Result<Option<PathBuf>> {
                 .start(ServiceStartCtx { label })
                 .expect("Failed to start");
 
-            println!("restart success");
+            println!("service restart success");
             Ok(None)
         }
     }
@@ -76,23 +82,32 @@ pub fn service() -> anyhow::Result<Option<PathBuf>> {
 #[derive(Parser)]
 #[clap(name = "test service")]
 enum OptArgs {
+    /// run service
     Exec {
+        /// config path;(by default, read from the current exec path config.json)
         #[arg(value_parser, default_value = "config.json")]
         config: PathBuf,
     },
+    /// create default config.json to current exec path
     Create,
+    /// service manager
     #[command(subcommand)]
     Service(ServiceArgs),
 }
 
 #[derive(Subcommand)]
 enum ServiceArgs {
+    /// install service to system
     Install {
         #[arg(value_parser, default_value = "config.json")]
         config: String,
     },
+    /// start service
     Start,
+    /// stop service
     Stop,
+    /// restart service
     Restart,
+    /// uninstall service to system
     Uninstall,
 }

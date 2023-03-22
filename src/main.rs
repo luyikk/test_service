@@ -1,8 +1,11 @@
+mod config;
+mod io;
 mod logger;
 mod service_opt;
 #[cfg(windows)]
 mod windows_service;
 
+use crate::config::Config;
 use crate::service_opt::service;
 use logger::*;
 use std::path::PathBuf;
@@ -32,6 +35,8 @@ fn main() -> anyhow::Result<()> {
 }
 
 async fn start(config: PathBuf) -> anyhow::Result<()> {
+    let config = Config::try_from(config)?;
+
     loop {
         tokio::time::sleep(Duration::from_secs(1)).await;
         log::info!("config:{config:?}");
