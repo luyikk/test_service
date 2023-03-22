@@ -1,4 +1,4 @@
-## rust system service frame template 
+## rust system service template 
 ## support windows linux macos
 
 
@@ -13,7 +13,7 @@
   test_service service uninstall
 ```
 
-* exec service
+* exec service （Windows does not support)
 ``` sh
    test_service exec 
    test_service exec config.json
