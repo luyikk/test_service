@@ -83,8 +83,9 @@ pub fn service() -> anyhow::Result<Option<PathBuf>> {
     }
 }
 
+
 #[derive(Parser)]
-#[clap(name = "test service")]
+#[clap(name = SERVICE_LIABLE,version)]
 enum OptArgs {
     /// run service
     Exec {
