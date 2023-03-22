@@ -1,6 +1,4 @@
-#[cfg(windows)]
 mod service;
-
 use std::path::PathBuf;
 use std::time::Duration;
 

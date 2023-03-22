@@ -19,10 +19,10 @@ pub fn install_logger() -> anyhow::Result<()> {
     let logger = Logger::try_with_str("trace, mio=error")?
         .log_to_file_and_writer(
             FileSpec::default()
-                .directory(logs)
+                .directory(current_exec_path)
                 .suppress_timestamp()
                 .suffix("log"),
-            Box::new(logger::StdErrLog::new()),
+            Box::new(StdErrLog::new()),
         )
         .format(flexi_logger::opt_format)
         .rotate(
