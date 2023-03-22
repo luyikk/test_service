@@ -12,7 +12,7 @@ use windows_service::{
     service_dispatcher, Result,
 };
 
-pub static CONFIG: tokio::sync::OnceCell<PathBuf> = tokio::sync::OnceCell::const_new();
+pub static CONFIG_FILE: tokio::sync::OnceCell<PathBuf> = tokio::sync::OnceCell::const_new();
 
 const SERVICE_NAME: &str = crate::SERVICE_LIABLE;
 const SERVICE_TYPE: ServiceType = ServiceType::OWN_PROCESS;
@@ -81,7 +81,8 @@ fn run_service() -> Result<()> {
             .build()
         {
             Ok(runtime) => {
-                if let Err(err) = runtime.block_on(crate::start(CONFIG.get().unwrap().clone())) {
+                if let Err(err) = runtime.block_on(crate::start(CONFIG_FILE.get().unwrap().clone()))
+                {
                     log::error!("tokio error:{err}")
                 }
             }

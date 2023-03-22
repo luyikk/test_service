@@ -23,8 +23,8 @@ async fn main() -> anyhow::Result<()> {
 
 #[cfg(windows)]
 fn main() -> anyhow::Result<()> {
-    if let Some(config) = service()? {
-        windows_service::CONFIG.set(config)?;
+    if let Some(config_file) = service()? {
+        windows_service::CONFIG_FILE.set(config_file)?;
         install_logger()?;
         log::info!("start windows run");
         windows_service::run()?;
@@ -32,8 +32,9 @@ fn main() -> anyhow::Result<()> {
     Ok(())
 }
 
-async fn start(config: PathBuf) -> anyhow::Result<()> {
-    let config = Config::try_from(config)?;
+#[inline]
+async fn start(config_file: PathBuf) -> anyhow::Result<()> {
+    let config = Config::try_from(config_file)?;
 
     loop {
         tokio::time::sleep(Duration::from_secs(1)).await;
