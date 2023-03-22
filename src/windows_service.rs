@@ -23,7 +23,7 @@ define_windows_service!(ffi_service_main, service_main);
 
 pub fn service_main(arguments: Vec<OsString>) {
     log::info!("service arguments:{arguments:?}");
-    if let Err(err)=run_service(){
+    if let Err(err) = run_service() {
         log::error!("run service error:{err:?}");
     }
 }
