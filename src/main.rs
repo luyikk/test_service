@@ -1,10 +1,6 @@
 #[cfg(windows)]
 mod service;
 
-use service::config::Config;
-use service::logger::*;
-use service::service_opt::service;
-use service::windows_service;
 use std::path::PathBuf;
 use std::time::Duration;
 
@@ -13,8 +9,8 @@ const SERVICE_LIABLE: &str = "com.test.service";
 #[cfg(unix)]
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
-    if let Some(config) = service()? {
-        install_logger()?;
+    if let Some(config) = service::service_opt::service()? {
+        service::logger::install_logger()?;
         log::info!("start unix run");
         start(config).await?;
     }
@@ -23,18 +19,18 @@ async fn main() -> anyhow::Result<()> {
 
 #[cfg(windows)]
 fn main() -> anyhow::Result<()> {
-    if let Some(config_file) = service()? {
-        windows_service::CONFIG_FILE.set(config_file)?;
-        install_logger()?;
+    if let Some(config_file) = service::service_opt::service()? {
+        service::windows_service::CONFIG_FILE.set(config_file)?;
+        service::logger::install_logger()?;
         log::info!("start windows run");
-        windows_service::run()?;
+        service::windows_service::run()?;
     }
     Ok(())
 }
 
 #[inline]
 async fn start(config_file: PathBuf) -> anyhow::Result<()> {
-    let config = Config::try_from(config_file)?;
+    let config = service::config::Config::try_from(config_file)?;
 
     loop {
         tokio::time::sleep(Duration::from_secs(1)).await;

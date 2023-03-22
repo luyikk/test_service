@@ -114,7 +114,7 @@ fn run_service() -> Result<()> {
         process_id: None,
     })?;
 
-    crate::LOGGER_HANDLER.get().unwrap().shutdown();
+    super::logger::LOGGER_HANDLER.get().unwrap().shutdown();
 
     Ok(())
 }
