@@ -12,7 +12,7 @@ use windows_service::{
     service_dispatcher, Result,
 };
 
-pub static  CONFIG: tokio::sync::OnceCell<PathBuf> = tokio::sync::OnceCell::const_new();
+pub static CONFIG: tokio::sync::OnceCell<PathBuf> = tokio::sync::OnceCell::const_new();
 
 const SERVICE_NAME: &str = crate::SERVICE_LIABLE;
 const SERVICE_TYPE: ServiceType = ServiceType::OWN_PROCESS;

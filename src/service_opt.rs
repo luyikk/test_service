@@ -30,9 +30,7 @@ pub fn service() -> anyhow::Result<Option<PathBuf>> {
             let label: ServiceLabel = SERVICE_LIABLE.parse().unwrap();
             let manager = <dyn ServiceManager>::native()?;
             manager
-                .uninstall(ServiceUninstallCtx {
-                    label,
-                })
+                .uninstall(ServiceUninstallCtx { label })
                 .expect("Failed to uninstall");
             println!("uninstall success");
             Ok(None)
@@ -41,9 +39,7 @@ pub fn service() -> anyhow::Result<Option<PathBuf>> {
             let label: ServiceLabel = SERVICE_LIABLE.parse().unwrap();
             let manager = <dyn ServiceManager>::native()?;
             manager
-                .start(ServiceStartCtx {
-                    label,
-                })
+                .start(ServiceStartCtx { label })
                 .expect("Failed to start");
             println!("start success");
             Ok(None)
@@ -52,9 +48,7 @@ pub fn service() -> anyhow::Result<Option<PathBuf>> {
             let label: ServiceLabel = SERVICE_LIABLE.parse().unwrap();
             let manager = <dyn ServiceManager>::native()?;
             manager
-                .stop(ServiceStopCtx {
-                    label,
-                })
+                .stop(ServiceStopCtx { label })
                 .expect("Failed to stop");
             println!("stop success");
             Ok(None)
@@ -70,9 +64,7 @@ pub fn service() -> anyhow::Result<Option<PathBuf>> {
                 .expect("Failed to stop");
 
             manager
-                .start(ServiceStartCtx {
-                    label,
-                })
+                .start(ServiceStartCtx { label })
                 .expect("Failed to start");
 
             println!("restart success");
