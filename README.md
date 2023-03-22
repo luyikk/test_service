@@ -1,5 +1,5 @@
 ## rust system service template 
-## support windows linux macos
+## support Windows Linux MacOS Bsd
 
 
 * service cmd
