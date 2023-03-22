@@ -1,5 +1,6 @@
 use std::ffi::OsString;
 use std::io;
+use std::path::PathBuf;
 use std::time::Duration;
 use windows_service::{
     define_windows_service,
@@ -10,6 +11,8 @@ use windows_service::{
     service_control_handler::{self, ServiceControlHandlerResult},
     service_dispatcher, Result,
 };
+
+pub static  CONFIG: tokio::sync::OnceCell<PathBuf> = tokio::sync::OnceCell::const_new();
 
 const SERVICE_NAME: &str = crate::SERVICE_LIABLE;
 const SERVICE_TYPE: ServiceType = ServiceType::OWN_PROCESS;
@@ -35,7 +38,6 @@ fn run_service() -> Result<()> {
     let (shutdown_tx, shutdown_rx) = std::sync::mpsc::channel();
     // Define system service event handler that will be receiving service events.
     let event_handler = {
-        let shutdown_tx = shutdown_tx.clone();
         move |control_event| -> ServiceControlHandlerResult {
             match control_event {
                 // Notifies a service to report its current status information to the service
@@ -79,7 +81,7 @@ fn run_service() -> Result<()> {
             .build()
         {
             Ok(runtime) => {
-                if let Err(err) = runtime.block_on(crate::start(None)) {
+                if let Err(err) = runtime.block_on(crate::start(CONFIG.get().unwrap().clone())) {
                     log::error!("tokio error:{err}")
                 }
             }

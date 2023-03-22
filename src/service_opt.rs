@@ -18,9 +18,9 @@ pub fn service() -> anyhow::Result<Option<PathBuf>> {
             let manager = <dyn ServiceManager>::native()?;
             manager
                 .install(ServiceInstallCtx {
-                    label: label.clone(),
+                    label,
                     program: current_exe,
-                    args: vec![OsString::from("exec")],
+                    args: vec![OsString::from("exec"), OsString::from(config)],
                 })
                 .expect("Failed to install");
             println!("install success");
@@ -31,7 +31,7 @@ pub fn service() -> anyhow::Result<Option<PathBuf>> {
             let manager = <dyn ServiceManager>::native()?;
             manager
                 .uninstall(ServiceUninstallCtx {
-                    label: label.clone(),
+                    label,
                 })
                 .expect("Failed to uninstall");
             println!("uninstall success");
@@ -42,7 +42,7 @@ pub fn service() -> anyhow::Result<Option<PathBuf>> {
             let manager = <dyn ServiceManager>::native()?;
             manager
                 .start(ServiceStartCtx {
-                    label: label.clone(),
+                    label,
                 })
                 .expect("Failed to start");
             println!("start success");
@@ -53,7 +53,7 @@ pub fn service() -> anyhow::Result<Option<PathBuf>> {
             let manager = <dyn ServiceManager>::native()?;
             manager
                 .stop(ServiceStopCtx {
-                    label: label.clone(),
+                    label,
                 })
                 .expect("Failed to stop");
             println!("stop success");
@@ -71,7 +71,7 @@ pub fn service() -> anyhow::Result<Option<PathBuf>> {
 
             manager
                 .start(ServiceStartCtx {
-                    label: label.clone(),
+                    label,
                 })
                 .expect("Failed to start");
 
@@ -97,7 +97,7 @@ enum OptArgs {
 enum ServiceArgs {
     Install {
         #[arg(value_parser, default_value = "config.json")]
-        config: PathBuf,
+        config: String,
     },
     Start,
     Stop,
