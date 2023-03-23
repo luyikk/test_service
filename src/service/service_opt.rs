@@ -13,7 +13,7 @@ pub fn service() -> anyhow::Result<Option<PathBuf>> {
     match OptArgs::parse() {
         OptArgs::Exec { config } => Ok(Some(config)),
         OptArgs::Create { path } => {
-            let config = include_str!("../../config.json");
+            let config = include_str!("../../config.toml");
             if path.has_root() {
                 std::fs::write(path, config)?;
             } else {
@@ -83,20 +83,19 @@ pub fn service() -> anyhow::Result<Option<PathBuf>> {
     }
 }
 
-
 #[derive(Parser)]
 #[clap(name = SERVICE_LIABLE,version)]
 enum OptArgs {
     /// run service
     Exec {
-        /// config path;(by default, read from the current exec path config.json)
-        #[arg(value_parser, default_value = "config.json")]
+        /// config path;(by default, read from the current exec path config.toml)
+        #[arg(value_parser, default_value = "config")]
         config: PathBuf,
     },
-    /// create config file; by default, create default config.json to current exec path
+    /// create config file; by default, create default config.toml to current exec path
     Create {
         /// create config file path
-        #[arg(value_parser, default_value = "config.json")]
+        #[arg(value_parser, default_value = "config")]
         path: PathBuf,
     },
     /// service manager
@@ -108,7 +107,7 @@ enum OptArgs {
 enum ServiceArgs {
     /// install service to system
     Install {
-        #[arg(value_parser, default_value = "config.json")]
+        #[arg(value_parser, default_value = "config")]
         config: String,
     },
     /// start service

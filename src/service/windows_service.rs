@@ -17,9 +17,21 @@ pub static CONFIG_FILE: tokio::sync::OnceCell<PathBuf> = tokio::sync::OnceCell::
 const SERVICE_NAME: &str = crate::SERVICE_LIABLE;
 const SERVICE_TYPE: ServiceType = ServiceType::OWN_PROCESS;
 
-pub fn run() -> io::Result<()> {
-    service_dispatcher::start(SERVICE_NAME, ffi_service_main)
-        .map_err(|x| io::Error::new(io::ErrorKind::Other, x))
+pub fn run(config_file: PathBuf) -> anyhow::Result<()> {
+    CONFIG_FILE.set(config_file.clone())?;
+    if let Err(err) =
+        service_dispatcher::start(SERVICE_NAME, ffi_service_main).map_err(|err| match err {
+            windows_service::Error::Winapi(err) => err,
+            err => io::Error::new(io::ErrorKind::Other, err),
+        })
+    {
+        if Some(1063) == err.raw_os_error() {
+            start(config_file)?;
+        } else {
+            Err(err)?;
+        }
+    }
+    Ok(())
 }
 
 define_windows_service!(ffi_service_main, service_main);
@@ -29,6 +41,7 @@ pub fn service_main(arguments: Vec<OsString>) {
     if let Err(err) = run_service() {
         log::error!("run service error:{err:?}");
     }
+    super::logger::LOGGER_HANDLER.get().unwrap().shutdown();
 }
 
 fn run_service() -> Result<()> {
@@ -76,19 +89,8 @@ fn run_service() -> Result<()> {
     log::info!("Spawning CLI thread for {SERVICE_NAME}");
 
     std::thread::spawn(|| {
-        match tokio::runtime::Builder::new_multi_thread()
-            .enable_all()
-            .build()
-        {
-            Ok(runtime) => {
-                if let Err(err) = runtime.block_on(crate::start(CONFIG_FILE.get().unwrap().clone()))
-                {
-                    log::error!("tokio error:{err}")
-                }
-            }
-            Err(err) => {
-                log::error!("tokio runtime build error:{err}")
-            }
+        if let Err(err) = start(CONFIG_FILE.get().unwrap().clone()) {
+            log::error!("Spawning CLI thread error:{err:#?}")
         }
     });
 
@@ -113,8 +115,15 @@ fn run_service() -> Result<()> {
         wait_hint: Duration::default(),
         process_id: None,
     })?;
+    Ok(())
+}
 
-    super::logger::LOGGER_HANDLER.get().unwrap().shutdown();
+#[inline]
+fn start(config_file: PathBuf) -> anyhow::Result<()> {
+    let runtime = tokio::runtime::Builder::new_multi_thread()
+        .enable_all()
+        .build()?;
 
+    runtime.block_on(crate::start(config_file))?;
     Ok(())
 }

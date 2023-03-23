@@ -13,7 +13,7 @@
   test_service service uninstall
 ```
 
-* exec service (Windows does not support)
+* exec service
 ``` sh
    test_service exec 
    test_service exec config.json

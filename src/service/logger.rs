@@ -13,9 +13,7 @@ pub fn install_logger() -> anyhow::Result<()> {
 
     let mut current_exec_path = super::io::get_current_exec_path()?;
     current_exec_path.push("logs");
-    println!("{:?}", current_exec_path);
 
-    #[cfg(unix)]
     let logger = Logger::try_with_str("trace, mio=error")?
         .log_to_file_and_writer(
             FileSpec::default()
@@ -32,24 +30,6 @@ pub fn install_logger() -> anyhow::Result<()> {
         )
         .print_message()
         .set_palette("196;190;2;4;8".into())
-        .write_mode(WriteMode::Async)
-        .start()?;
-
-    #[cfg(windows)]
-    let logger = Logger::try_with_str("trace, sqlx = error,mio = error")?
-        .log_to_file(
-            FileSpec::default()
-                .directory(current_exec_path)
-                .suppress_timestamp()
-                .suffix("log"),
-        )
-        .format(flexi_logger::opt_format)
-        .rotate(
-            Criterion::AgeOrSize(Age::Day, 1024 * 1024 * 5),
-            Naming::Numbers,
-            Cleanup::KeepLogFiles(200),
-        )
-        .print_message()
         .write_mode(WriteMode::Async)
         .start()?;
 

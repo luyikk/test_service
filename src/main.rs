@@ -1,4 +1,5 @@
 mod service;
+
 use std::path::PathBuf;
 use std::time::Duration;
 
@@ -18,10 +19,9 @@ async fn main() -> anyhow::Result<()> {
 #[cfg(windows)]
 fn main() -> anyhow::Result<()> {
     if let Some(config_file) = service::service_opt::service()? {
-        service::windows_service::CONFIG_FILE.set(config_file)?;
         service::logger::install_logger()?;
         log::info!("start windows run");
-        service::windows_service::run()?;
+        service::windows_service::run(config_file)?;
     }
     Ok(())
 }
